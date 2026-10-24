@@ -7,7 +7,7 @@
 export const CATEGORIES = [
   '아우터',
   '니트',
-  '맨투맨',
+  '맨투맨/후드티',
   '셔츠',
   '하의',
   '신발',
@@ -16,7 +16,7 @@ export const CATEGORIES = [
 
 // 코디 추천 대상 카테고리
 export const OUTER_CATEGORIES = ['아우터'];
-export const INNER_CATEGORIES = ['니트', '맨투맨', '셔츠'];
+export const INNER_CATEGORIES = ['니트', '맨투맨/후드티', '셔츠'];
 
 // 색상 선택지
 export const COLORS = [
