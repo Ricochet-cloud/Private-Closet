@@ -1,21 +1,29 @@
 /**
  * views/log.js
- * 착용 기록 화면 (1단계에서는 '준비 중' 표시)
+ * 착용 기록 화면
+ * - 날짜: 세리프 서체
+ * - 항목 사이: 1px 선으로 구분
+ * - 썸네일: 컴팩트한 크기
  */
 
 export function renderLogView(container) {
   container.innerHTML = `
-    <div class="placeholder-page">
-      <div class="placeholder-card">
-        <div class="placeholder-icon">📅</div>
-        <h2>착용 기록 & 데일리 로그</h2>
-        <p class="placeholder-badge">3단계 개발 예정</p>
-        <p class="placeholder-desc">
-          오늘 입은 코디를 기록하고, 최근 입었던 옷의 통계와<br>
-          중복 착용 방지(최근 4일) 기능을 제공할 예정입니다.
-        </p>
-        <div class="mt-4">
-          <a href="#/closet" class="btn btn-primary">내 옷장으로 돌아가기</a>
+    <div class="log-page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">착용 기록</h1>
+          <p class="page-subtitle text-muted">날짜별로 입었던 데일리룩 아카이브</p>
+        </div>
+        <div class="header-actions">
+          <a href="#/closet" class="btn btn-secondary btn-sm">옷장 보기</a>
+        </div>
+      </div>
+
+      <div id="log-list-container">
+        <div class="empty-state">
+          <h3 class="empty-title">기록된 착용 내역이 없습니다</h3>
+          <p class="text-muted text-sm mt-1">오늘의 코디에서 입은 옷을 기록하면 날짜별로 아카이브에 보관됩니다.</p>
+          <a href="#/today" class="btn btn-primary mt-3">오늘의 코디 확인하기</a>
         </div>
       </div>
     </div>

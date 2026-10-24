@@ -18,6 +18,9 @@ export async function renderClosetView(container) {
           <p class="page-subtitle text-muted">등록된 옷들을 한눈에 확인하고 관리하세요</p>
         </div>
         <div class="header-actions">
+          <a href="#/today" class="btn btn-secondary">
+            <span>오늘의 코디</span>
+          </a>
           <a href="#/cloth/new" class="btn btn-primary">
             <span>+ 옷 등록</span>
           </a>
@@ -108,9 +111,8 @@ function renderGrid(clothes, activeCategory, container) {
   if (filtered.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">👕</div>
-        <h3>${activeCategory === '전체' ? '등록된 옷이 없습니다' : `${activeCategory} 카테고리에 옷이 없습니다`}</h3>
-        <p class="text-muted">입고 있는 멋진 옷을 사진과 함께 등록해보세요!</p>
+        <h3 class="empty-title">${activeCategory === '전체' ? '등록된 옷이 없습니다' : `${activeCategory} 카테고리에 옷이 없습니다`}</h3>
+        <p class="text-muted text-sm mt-1">보유한 옷을 등록하여 아카이브를 완성해보세요.</p>
         <a href="#/cloth/new" class="btn btn-primary mt-3">+ 새 옷 등록하기</a>
       </div>
     `;

@@ -32,8 +32,7 @@ function updateNavbar(hash) {
     <header class="app-header">
       <div class="header-inner">
         <a href="#/closet" class="header-brand">
-          <span class="brand-icon">🧥</span>
-          <span class="brand-text">내 옷장</span>
+          <span class="header-wordmark">MY CLOSET</span>
         </a>
 
         <nav class="nav-links">
@@ -52,7 +51,7 @@ function updateNavbar(hash) {
           <span class="user-email text-xs text-muted" title="${currentUser.email || ''}">
             ${currentUser.email || '사용자'}
           </span>
-          <button id="btn-logout" class="btn btn-outline btn-sm">
+          <button id="btn-logout" class="btn btn-secondary btn-sm">
             로그아웃
           </button>
         </div>

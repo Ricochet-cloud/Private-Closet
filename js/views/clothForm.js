@@ -44,9 +44,8 @@ export async function renderClothFormView(container, params = {}) {
               <div class="photo-preview-area" id="photo-preview-box">
                 <img id="photo-preview-img" src="" alt="미리보기" style="display: none;" />
                 <div id="photo-placeholder" class="photo-placeholder">
-                  <div class="photo-placeholder-icon">📷</div>
-                  <p class="photo-placeholder-text">사진을 업로드해주세요</p>
-                  <span class="text-xs text-muted">10MB 이상 대용량 사진도 자동으로 최적화 압축됩니다</span>
+                  <p class="photo-placeholder-title font-serif">사진을 업로드해주세요</p>
+                  <span class="text-xs text-muted">선택 시 자동으로 1200px / 400px 최적화 압축됩니다</span>
                 </div>
                 <div id="photo-loading-overlay" class="photo-loading-overlay" style="display: none;">
                   <div class="spinner"></div>
@@ -145,13 +144,21 @@ export async function renderClothFormView(container, params = {}) {
 
                 <!-- 두께 -->
                 <div class="form-group">
-                  <label for="cloth-thickness" class="form-label">
+                  <label class="form-label">
                     두께 <span class="text-muted text-xs font-normal">(추천에 필수)</span>
                   </label>
-                  <select id="cloth-thickness" name="thickness" class="form-control">
-                    <option value="">두께 선택 안 함 (정보 부족)</option>
-                    ${THICKNESSES.map(t => `<option value="${t}">${t}</option>`).join('')}
-                  </select>
+                  <div class="chip-select-grid" id="thickness-radio-group">
+                    <label class="chip-label">
+                      <input type="radio" name="thickness" value="" class="sr-only" checked />
+                      <span class="chip-pill">미입력</span>
+                    </label>
+                    ${THICKNESSES.map(t => `
+                      <label class="chip-label">
+                        <input type="radio" name="thickness" value="${t}" class="sr-only" />
+                        <span class="chip-pill">${t}</span>
+                      </label>
+                    `).join('')}
+                  </div>
                   <span class="field-hint text-xs">두께 미입력 시 날씨 추천에서 제외됩니다.</span>
                 </div>
               </div>
@@ -375,7 +382,11 @@ export async function renderClothFormView(container, params = {}) {
       if (cloth.name) clothForm.elements["name"].value = cloth.name;
       if (cloth.brand) clothForm.elements["brand"].value = cloth.brand;
       if (cloth.color) clothForm.elements["color"].value = cloth.color;
-      if (cloth.thickness) clothForm.elements["thickness"].value = cloth.thickness;
+      if (cloth.thickness) {
+        const thickRadio = clothForm.querySelector(`input[name="thickness"][value="${cloth.thickness}"]`);
+        if (thickRadio) thickRadio.checked = true;
+        else if (clothForm.elements["thickness"]) clothForm.elements["thickness"].value = cloth.thickness;
+      }
       if (cloth.memo) clothForm.elements["memo"].value = cloth.memo;
 
       // 계절 체크박스
@@ -476,7 +487,8 @@ export async function renderClothFormView(container, params = {}) {
     const name = clothForm.elements["name"].value.trim();
     const brand = clothForm.elements["brand"].value.trim();
     const color = clothForm.elements["color"].value;
-    const thickness = clothForm.elements["thickness"].value;
+    const thicknessInput = clothForm.querySelector('input[name="thickness"]:checked');
+    const thickness = thicknessInput ? thicknessInput.value : (clothForm.elements["thickness"]?.value || "");
     const memo = clothForm.elements["memo"].value.trim();
 
     const seasons = Array.from(clothForm.querySelectorAll('input[name="seasons"]:checked'))

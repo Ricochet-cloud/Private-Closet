@@ -14,6 +14,10 @@ export const CATEGORIES = [
   '기타'
 ];
 
+// 코디 추천 대상 카테고리
+export const OUTER_CATEGORIES = ['아우터'];
+export const INNER_CATEGORIES = ['니트', '맨투맨', '셔츠'];
+
 // 색상 선택지
 export const COLORS = [
   '블랙',
@@ -67,3 +71,80 @@ export const IMAGE_CONFIG = {
     quality: 0.8            // WebP 품질
   }
 };
+
+// [2단계] 날씨 위치 설정 (위도·경도 자리표시자 - 서울 기본값)
+export const WEATHER_LOCATION = {
+  name: "서울",
+  latitude: 37.5665,
+  longitude: 126.9780
+};
+
+// [2단계] 비 판단 기준 (하루 강수확률 50% 이상 또는 현재 강수량 0 초과)
+export const RAIN_CRITERIA = {
+  precipitationProbabilityMax: 50,
+  precipitationCurrent: 0
+};
+
+// [2단계] 수동 날씨 선택 시 대표 기온 (추움 / 적당 / 더움)
+export const MANUAL_WEATHER_OPTIONS = [
+  { label: "추움", temp: 3, description: "두꺼운 옷 위주" },
+  { label: "적당", temp: 15, description: "간절기 옷 위주" },
+  { label: "더움", temp: 25, description: "가벼운 옷 위주" }
+];
+
+// [2단계] 기온 구간 표 (PRD 초안 그대로)
+// 기온은 최저·최고 평균 기준 체감 기온으로 사용
+export const TEMPERATURE_BANDS = [
+  {
+    name: "5°C 이하",
+    minTemp: -Infinity,
+    maxTemp: 5,
+    outerThickness: ["두꺼움"],
+    innerThickness: ["두꺼움", "보통"],
+    allowNoOuter: false
+  },
+  {
+    name: "6~11°C",
+    minTemp: 6,
+    maxTemp: 11,
+    outerThickness: ["두꺼움", "보통"],
+    innerThickness: ["보통"],
+    allowNoOuter: false
+  },
+  {
+    name: "12~16°C",
+    minTemp: 12,
+    maxTemp: 16,
+    outerThickness: ["보통", "얇음"],
+    innerThickness: ["보통", "얇음"],
+    allowNoOuter: false
+  },
+  {
+    name: "17~22°C",
+    minTemp: 17,
+    maxTemp: 22,
+    outerThickness: ["얇음"],
+    innerThickness: ["얇음", "보통"],
+    allowNoOuter: true // 아우터 없이 이너 단독 가능
+  },
+  {
+    name: "23°C 이상",
+    minTemp: 23,
+    maxTemp: Infinity,
+    outerThickness: [], // 아우터 없음
+    innerThickness: ["얇음"],
+    allowNoOuter: true,
+    forceNoOuter: true
+  }
+];
+
+// [2단계] 점수 상수
+export const SCORE_CONSTANTS = {
+  recentWearPenalty: 0.25, // 3단계: 최근 착용 감점 (옷 1벌당 0.25점)
+  seasonBonus: 0.1,        // 현재 계절 가산 (옷 1벌당 0.1점)
+  repeatPreventDays: 4     // 3단계: 반복 방지 일수 (최근 4일)
+};
+
+// [2단계] 색 충돌 목록 (PRD: 비워 두고 시작하여 추천 결과를 보며 채움)
+// 예: [['블랙', '브라운'], ['레드', '그린']]
+export const COLOR_CLASH = [];

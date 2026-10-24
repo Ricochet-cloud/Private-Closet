@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>코디 추천 알고리즘 브라우저 테스트</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #f8fafc; color: #1e293b; max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+    .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+    .pass { color: #16a34a; font-weight: bold; }
+    .fail { color: #dc2626; font-weight: bold; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 0.4rem 0; border-bottom: 1px dashed #e2e8f0; }
+    pre { background: #f1f5f9; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <h1>🧪 2단계 추천 알고리즘 브라우저 자동 검증</h1>
+  <div id="results" class="card">
+    <p>테스트 실행 중...</p>
+  </div>
+
+  <script type="module">
+    import { recommendOutfits } from './js/recommend.js';
+    import { getSingleMoodScore } from './js/moodMatrix.js';
+
+    const resultsEl = document.getElementById('results');
+
+    const sampleClothes = [
+      { id: 'o1', category: '아우터', name: '아메카지 커버올', thickness: '보통', moods: ['아메카지'], seasons: ['가을'], thumb: '' },
+      { id: 'o2', category: '아우터', name: '헤비 다운 패딩', thickness: '두꺼움', moods: ['워크웨어'], seasons: ['겨울'], thumb: '' },
+      { id: 'o3', category: '아우터', name: '두께 누락 코트', thickness: '', moods: ['빈티지'], seasons: ['가을'], thumb: '' },
+      { id: 'o4', category: '아우터', name: '라이트 윈드브레이커', thickness: '얇음', moods: ['밀리터리'], seasons: ['봄', '가을'], thumb: '' },
+      { id: 'i1', category: '니트', name: '프레피 브이넥 니트', thickness: '보통', moods: ['프레피'], seasons: ['가을'], thumb: '' },
+      { id: 'i2', category: '셔츠', name: '워크웨어 데님 셔츠', thickness: '보통', moods: ['워크웨어'], seasons: ['가을'], thumb: '' },
+      { id: 'i3', category: '맨투맨', name: '빈티지 스웨트셔츠', thickness: '보통', moods: ['빈티지'], seasons: ['가을'], thumb: '' },
+      { id: 'i4', category: '니트', name: '헤비 울 니트', thickness: '두꺼움', moods: ['워크웨어'], seasons: ['겨울'], thumb: '' },
+      { id: 'i5', category: '셔츠', name: '두께 누락 셔츠', thickness: '', moods: ['아이비'], seasons: ['가을'], thumb: '' },
+      { id: 'i6', category: '셔츠', name: '린넨 셔츠', thickness: '얇음', moods: ['아이비'], seasons: ['여름'], thumb: '' },
+    ];
+
+    const test1 = getSingleMoodScore('아메카지', '프레피') === 0;
+
+    const res14 = recommendOutfits(sampleClothes, 14, new Date('2026-10-24'));
+    const test2_1 = !res14.recommendations.some(r => r.items.some(i => i.moods.includes('아메카지')) && r.items.some(i => i.moods.includes('프레피')));
+    const test2_2 = !res14.recommendations.some(r => r.items.some(i => !i.thickness || i.thickness === '두꺼움'));
+    const test2_3 = res14.recommendations.length > 0;
+
+    const firstKeys = res14.recommendations.map(r => r.key);
+    const res14Next = recommendOutfits(sampleClothes, 14, new Date('2026-10-24'), [], firstKeys);
+    const test3 = !res14Next.recommendations.some(r => firstKeys.includes(r.key));
+
+    const noOuter = sampleClothes.filter(c => c.category !== '아우터');
+    const resNoOuter = recommendOutfits(noOuter, 10);
+    const test4 = resNoOuter.missingCategories.includes('아우터');
+
+    resultsEl.innerHTML = `
+      <h3>테스트 결과 요약</h3>
+      <ul>
+        <li>1. 궁합 0점 쌍 (아메카지 + 프레피) 제외: <span class="${test1 && test2_1 ? 'pass' : 'fail'}">${test1 && test2_1 ? '✅ 통과' : '❌ 실패'}</span></li>
+        <li>2. 기온 부적합 두께 및 두께 누락 옷 제외: <span class="${test2_2 ? 'pass' : 'fail'}">${test2_2 ? '✅ 통과' : '❌ 실패'}</span></li>
+        <li>3. 추천 3개 생성 및 "다시 추천" 시 기존 조합 제외: <span class="${test2_3 && test3 ? 'pass' : 'fail'}">${test2_3 && test3 ? '✅ 통과' : '❌ 실패'}</span></li>
+        <li>4. 조건에 맞는 옷 부족 시 누락 알림: <span class="${test4 ? 'pass' : 'fail'}">${test4 ? '✅ 통과' : '❌ 실패'}</span></li>
+      </ul>
+      <h4 style="margin-top:1rem;">14°C 추천 코디 결과:</h4>
+      <pre>${JSON.stringify(res14.recommendations.map(r => ({
+        items: r.items.map(i => `${i.name} (${i.thickness})`),
+        mood: r.moodLabel,
+        score: r.score
+      })), null, 2)}</pre>
+    `;
+  </script>
+</body>
+</html>

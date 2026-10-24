@@ -13,9 +13,8 @@ export function renderLoginView(container) {
     <div class="auth-page">
       <div class="auth-card">
         <div class="auth-header">
-          <div class="brand-logo">🧥</div>
-          <h1 class="brand-title">내 옷장</h1>
-          <p class="brand-subtitle">나만의 데일리 옷장 관리 & 코디 추천</p>
+          <h1 class="auth-brand-wordmark">MY CLOSET</h1>
+          <p class="auth-brand-subtitle">나만의 데일리 옷장 관리 & 코디 추천</p>
         </div>
 
         ${!isConfigured ? `
