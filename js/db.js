@@ -12,12 +12,15 @@ import {
   getDocs,
   getDoc,
   addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const CLOTHES_COLLECTION = "clothes";
+const OUTFIT_LOGS_COLLECTION = "outfitLogs";
+const DATE_ID_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
  * DB 초기화 확인 헬퍼
@@ -166,4 +169,92 @@ export async function deleteCloth(id) {
   await imageStore.deleteImage(id);
 
   return true;
+}
+
+/* ==========================================================================
+   착용 기록 (outfitLogs) - 3단계
+   문서 ID = 한국 시간 날짜(YYYY-MM-DD)라서 하루 1건이 자동으로 지켜진다.
+   ========================================================================== */
+
+/**
+ * 착용 기록 전체 조회 (날짜 내림차순)
+ * @returns {Promise<Array<{id: string, wearDate: string, itemIds: string[], weatherSummary: string, moodLabel: string}>>}
+ */
+export async function getOutfitLogs() {
+  assertDbAvailable();
+  const snap = await getDocs(collection(db, OUTFIT_LOGS_COLLECTION));
+  const list = [];
+
+  snap.forEach((d) => {
+    const data = d.data();
+    list.push({
+      id: d.id,
+      ...data,
+      wearDate: data.wearDate || d.id,
+      itemIds: Array.isArray(data.itemIds) ? data.itemIds : []
+    });
+  });
+
+  list.sort((a, b) => (a.wearDate < b.wearDate ? 1 : a.wearDate > b.wearDate ? -1 : 0));
+  return list;
+}
+
+/**
+ * 착용 기록 저장 (같은 날짜 문서가 있으면 덮어쓰기)
+ * @param {{wearDate: string, itemIds: string[], weatherSummary?: string, moodLabel?: string}} entry
+ * @returns {Promise<string>} 저장된 날짜(문서 ID)
+ */
+export async function saveOutfitLog(entry) {
+  assertDbAvailable();
+  const wearDate = entry?.wearDate;
+  if (!DATE_ID_PATTERN.test(wearDate || "")) {
+    throw new Error("착용 날짜 형식이 올바르지 않습니다. (YYYY-MM-DD)");
+  }
+  if (!Array.isArray(entry.itemIds) || entry.itemIds.length === 0) {
+    throw new Error("기록할 옷을 1벌 이상 선택해주세요.");
+  }
+
+  await setDoc(doc(db, OUTFIT_LOGS_COLLECTION, wearDate), {
+    wearDate,
+    itemIds: entry.itemIds,
+    weatherSummary: entry.weatherSummary || "",
+    moodLabel: entry.moodLabel || "",
+    createdAt: serverTimestamp()
+  });
+
+  return wearDate;
+}
+
+/**
+ * 착용 기록 삭제(취소)
+ * @param {string} wearDate YYYY-MM-DD
+ */
+export async function deleteOutfitLog(wearDate) {
+  assertDbAvailable();
+  if (!DATE_ID_PATTERN.test(wearDate || "")) {
+    throw new Error("착용 날짜 형식이 올바르지 않습니다. (YYYY-MM-DD)");
+  }
+  await deleteDoc(doc(db, OUTFIT_LOGS_COLLECTION, wearDate));
+  return true;
+}
+
+/**
+ * 옷 한 벌의 마지막 착용일과 총 착용 횟수 (별도 카운터 없이 기록 전체에서 계산)
+ * @param {Array<Object>} logs getOutfitLogs() 결과
+ * @param {string} clothId
+ * @returns {{count: number, lastDate: string|null}}
+ */
+export function summarizeWear(logs, clothId) {
+  let count = 0;
+  let lastDate = null;
+
+  for (const log of logs || []) {
+    if (!Array.isArray(log.itemIds) || !log.itemIds.includes(clothId)) continue;
+    count += 1;
+    if (!lastDate || log.wearDate > lastDate) {
+      lastDate = log.wearDate;
+    }
+  }
+
+  return { count, lastDate };
 }

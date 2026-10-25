@@ -12,15 +12,15 @@ import {
   COLOR_CLASH 
 } from "./config.js";
 import { getPairMoodCompatibility } from "./moodMatrix.js";
+import { getKstDateString, diffDays } from "./dateUtil.js";
 
 /**
  * 날짜 기준 현재 계절 계산 (한국 기준 3~5월 봄, 6~8월 여름, 9~11월 가을, 12~2월 겨울)
- * @param {Date|string} date 
+ * @param {Date|string} date
  * @returns {'봄'|'여름'|'가을'|'겨울'}
  */
 export function getCurrentSeason(date = new Date()) {
-  const d = date instanceof Date ? date : new Date(date);
-  const month = d.getMonth() + 1; // 1~12
+  const month = Number(getKstDateString(date).slice(5, 7)); // 한국 시간 기준 1~12
   if (month >= 3 && month <= 5) return '봄';
   if (month >= 6 && month <= 8) return '여름';
   if (month >= 9 && month <= 11) return '가을';
@@ -50,10 +50,45 @@ export function getTemperatureBand(temp) {
  * @returns {string}
  */
 export function getOutfitKey(items) {
-  return items
-    .map(item => item.id)
-    .sort()
-    .join(",");
+  return getOutfitKeyFromIds(items.map(item => item.id));
+}
+
+/**
+ * 옷 ID 배열로 코디 고유 키 생성 (착용 기록의 itemIds 비교용)
+ * @param {Array<string>} ids
+ * @returns {string}
+ */
+export function getOutfitKeyFromIds(ids) {
+  return [...ids].sort().join(",");
+}
+
+/**
+ * 착용 기록을 추천 규칙에 쓰기 좋은 형태로 정리
+ * - 오늘 입은 코디 키
+ * - 반복 방지 기간(오늘 제외, 어제부터 N일 전까지)에 입은 코디 키와 옷 ID
+ * @param {Array<Object>} outfitLogs
+ * @param {string} todayStr 한국 시간 기준 YYYY-MM-DD
+ */
+function analyzeOutfitLogs(outfitLogs, todayStr) {
+  const blockedKeys = new Set();
+  const recentItemIds = new Set();
+  let todayKey = null;
+
+  for (const log of outfitLogs || []) {
+    if (!log || !log.wearDate || !Array.isArray(log.itemIds) || log.itemIds.length === 0) continue;
+
+    const daysAgo = diffDays(todayStr, log.wearDate);
+    const key = getOutfitKeyFromIds(log.itemIds);
+
+    if (daysAgo === 0) {
+      todayKey = key;
+    } else if (daysAgo >= 1 && daysAgo <= SCORE_CONSTANTS.repeatPreventDays) {
+      blockedKeys.add(key);
+      log.itemIds.forEach(id => recentItemIds.add(id));
+    }
+  }
+
+  return { blockedKeys, recentItemIds, todayKey };
 }
 
 /**
@@ -76,13 +111,18 @@ function isColorClash(colorA, colorB) {
  * 데일리룩 코디 추천 순수 함수
  * @param {Array<Object>} clothes 옷 전체 목록
  * @param {number} temperature 기준 기온
- * @param {Date|string} todayDate 오늘 날짜
- * @param {Array<Object>} outfitLogs 착용 기록 (3단계 연동용, 2단계에선 수신만 하고 사용 안 함)
+ * @param {Date|string} todayDate 오늘 날짜 (한국 시간 기준으로 해석)
+ * @param {Array<{wearDate: string, itemIds: Array<string>}>} outfitLogs 착용 기록
+ *   - 오늘을 뺀 최근 N일(어제~N일 전) 안에 입은 코디와 같은 구성은 제외
+ *   - 그 기간에 입은 옷이 들어 있으면 옷 1벌당 recentWearPenalty만큼 감점
+ *   - 오늘 입은 코디와 같은 구성은 제외하지 않고 wornToday: true로 표시
  * @param {Array<string>|Set<string>} alreadyShownKeys 이번 세션에서 이미 추천된 조합 키 목록
  * @returns {{
- *   recommendations: Array<{items: Array<Object>, score: number, moodLabel: string, key: string}>,
+ *   recommendations: Array<{items: Array<Object>, score: number, moodLabel: string, key: string, wornToday: boolean, penalty: number}>,
  *   missingCategories: Array<string>,
- *   totalPossibleCount: number
+ *   totalPossibleCount: number,
+ *   remainingCount: number,
+ *   repeatExcludedCount: number
  * }}
  */
 export function recommendOutfits(
@@ -92,9 +132,11 @@ export function recommendOutfits(
   outfitLogs = [],
   alreadyShownKeys = []
 ) {
-  const currentSeason = getCurrentSeason(todayDate);
+  const todayStr = getKstDateString(todayDate);
+  const currentSeason = getCurrentSeason(todayStr);
   const band = getTemperatureBand(temperature);
   const shownSet = new Set(alreadyShownKeys);
+  const { blockedKeys, recentItemIds, todayKey } = analyzeOutfitLogs(outfitLogs, todayStr);
 
   // ① 날씨 필터: 두께가 비어 있는 옷은 제외하고 기온 구간에 맞는 옷만 후보로 남김
   const validOuters = clothes.filter(item => {
@@ -143,8 +185,9 @@ export function recommendOutfits(
     }
   }
 
-  // ② 무드 매칭 & ③ 색 보정 & ④ 계절 가산
+  // ② 무드 매칭 & ③ 색 보정 & ④ 반복 방지·최근 착용 감점 & ⑤ 계절 가산
   const validOutfits = [];
+  let repeatExcludedCount = 0;
 
   for (const candidate of rawCandidates) {
     const { items, isSingleInner } = candidate;
@@ -178,7 +221,25 @@ export function recommendOutfits(
       moodLabel = `무드: ${comp.bestMood}`;
     }
 
-    // ④ 계절 가산: 현재 계절이 계절 태그에 있는 옷은 1벌당 0.1점을 더함
+    const key = getOutfitKey(items);
+    const wornToday = key === todayKey;
+
+    // ④ 반복 방지: 최근 N일(어제부터) 안에 입은 코디와 같은 구성은 제외
+    //    (오늘 입은 코디는 제외하지 않고 "입음" 표시용으로 남긴다)
+    if (blockedKeys.has(key) && !wornToday) {
+      repeatExcludedCount += 1;
+      continue;
+    }
+
+    // ④ 최근 착용 감점: 그 기간에 입은 옷이 들어 있으면 1벌당 감점
+    let penalty = 0;
+    for (const item of items) {
+      if (recentItemIds.has(item.id)) {
+        penalty += SCORE_CONSTANTS.recentWearPenalty;
+      }
+    }
+
+    // ⑤ 계절 가산: 현재 계절이 계절 태그에 있는 옷은 1벌당 0.1점을 더함
     let seasonBonusTotal = 0;
     for (const item of items) {
       if (Array.isArray(item.seasons) && item.seasons.includes(currentSeason)) {
@@ -186,21 +247,22 @@ export function recommendOutfits(
       }
     }
 
-    const finalScore = Math.round((moodScore + seasonBonusTotal) * 100) / 100;
-    const key = getOutfitKey(items);
+    const finalScore = Math.round((moodScore + seasonBonusTotal - penalty) * 100) / 100;
 
     validOutfits.push({
       items,
       score: finalScore,
       moodScore,
       moodLabel,
-      key
+      key,
+      wornToday,
+      penalty: Math.round(penalty * 100) / 100
     });
   }
 
   const totalPossibleCount = validOutfits.length;
 
-  // ⑤ 이미 보여준 조합(alreadyShown) 제외
+  // 이미 보여준 조합(alreadyShown) 제외
   const freshOutfits = validOutfits.filter(outfit => !shownSet.has(outfit.key));
 
   // 점수가 같으면 무작위 순서가 되도록 셔플 후 점수 내림차순 정렬
@@ -214,6 +276,7 @@ export function recommendOutfits(
     recommendations,
     missingCategories,
     totalPossibleCount,
-    remainingCount: freshOutfits.length
+    remainingCount: freshOutfits.length,
+    repeatExcludedCount
   };
 }

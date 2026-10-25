@@ -1,11 +1,11 @@
-# 내 옷장 (My Closet) - 1단계: 옷장 관리
+# 내 옷장 (My Closet)
 
 나만의 데일리 옷장 관리 및 코디 추천 웹 애플리케이션입니다.  
 별도의 백엔드 서버 없이 브라우저(ES 모듈)와 Firebase(Auth, Firestore)만으로 동작하며, GitHub Pages를 통해 무료로 호스팅됩니다.
 
 ---
 
-## 📁 프로젝트 구조 (1단계)
+## 📁 프로젝트 구조
 
 ```text
 /
@@ -16,7 +16,11 @@
 │  ├─ app.js            # 시작점 및 해시 라우터 (인증 가드 포함)
 │  ├─ firebase.js       # Firebase 초기화 및 오프라인 캐시 설정 (firebaseConfig 입력 위치)
 │  ├─ auth.js           # 이메일/비밀번호 로그인, 세션 유지, 로그아웃
-│  ├─ db.js             # Firestore 'clothes' 컬렉션 CRUD 연동
+│  ├─ db.js             # Firestore 'clothes' CRUD, 'outfitLogs'(착용 기록) 저장·삭제·조회
+│  ├─ dateUtil.js       # 한국 시간(Asia/Seoul) 기준 날짜 계산·표시 헬퍼
+│  ├─ weather.js        # Open-Meteo 날씨 조회 (API 키 불필요)
+│  ├─ recommend.js      # 추천 규칙 (날씨·무드·반복 방지·최근 착용 감점, 순수 함수)
+│  ├─ moodMatrix.js     # 무드 궁합표
 │  ├─ imageResize.js    # Canvas 기반 고화질(1200px) 및 썸네일(400px) WebP 압축
 │  ├─ imageStore.js     # 사진 저장/조회/삭제 인터페이스 ('clothImages' 컬렉션)
 │  ├─ config.js         # 카테고리, 두께, 계절, 무드 태그 등 공통 상수
@@ -24,9 +28,11 @@
 │     ├─ login.js       # 로그인 뷰 (#/login)
 │     ├─ closet.js      # 옷장 목록 뷰 (#/closet)
 │     ├─ clothForm.js   # 옷 등록/수정/삭제 뷰 (#/cloth/new, #/cloth/:id)
-│     ├─ today.js       # 오늘의 코디 (2단계 준비 중)
-│     └─ log.js         # 착용 기록 (3단계 준비 중)
+│     ├─ today.js       # 오늘의 코디 (#/today): 날씨·추천 3개·"입었어요" 체크
+│     └─ log.js         # 착용 기록 (#/log): 날짜별 기록, 삭제, 직접 기록
 ├─ firestore.rules      # Firestore 보안 규칙 사본 (OWNER_UID 교체용)
+├─ test-recommend.js    # 추천 규칙 확인용 테스트 (2·3단계)
+├─ test-recommend.html  # 위 테스트의 브라우저 버전
 ├─ PRD.md               # 프로젝트 요구사항 정의서
 └─ README.md            # 설정 및 배포 가이드
 ```
@@ -131,3 +137,15 @@ python -m http.server 8000
 3. GitHub 저장소의 **Settings > Pages** 메뉴로 이동합니다.
 4. **Build and deployment > Source**에서 `Deploy from a branch`를 선택하고, **Branch**를 `main` / `/(root)`로 지정한 뒤 **Save**를 누릅니다.
 5. 1~2분 후 제공되는 GitHub Pages URL로 접속하여 이용합니다.
+
+---
+
+## 🧪 추천 규칙 테스트 실행
+
+Node.js 22 이상이면 프로젝트 루트에서 아래처럼 실행할 수 있습니다. (`package.json`이 없어서 ES 모듈로 인식시키는 옵션이 필요합니다.)
+
+```powershell
+node --experimental-default-type=module test-recommend.js
+```
+
+한국 시간 날짜 경계, 최근 4일 반복 방지, 옷 1벌당 0.25점 감점, "입음" 표시 규칙을 확인합니다.

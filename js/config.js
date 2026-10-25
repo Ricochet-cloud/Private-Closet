@@ -138,12 +138,18 @@ export const TEMPERATURE_BANDS = [
   }
 ];
 
-// [2단계] 점수 상수
+// [2·3단계] 점수 상수
 export const SCORE_CONSTANTS = {
-  recentWearPenalty: 0.25, // 3단계: 최근 착용 감점 (옷 1벌당 0.25점)
+  recentWearPenalty: 0.25, // 최근 착용 감점 (옷 1벌당 0.25점)
   seasonBonus: 0.1,        // 현재 계절 가산 (옷 1벌당 0.1점)
-  repeatPreventDays: 4     // 3단계: 반복 방지 일수 (최근 4일)
+  repeatPreventDays: 4     // 반복 방지 일수 (오늘 제외, 어제부터 4일 전까지)
 };
+
+// [3단계] 날짜 기준 시간대 (착용 기록 문서 ID와 반복 방지 일수 계산에 사용)
+export const TIMEZONE = "Asia/Seoul";
+
+// [3단계] 추천이 아닌 직접 고른 옷으로 기록했을 때 코디 라벨
+export const MANUAL_LOG_LABEL = "직접 기록";
 
 // [2단계] 색 충돌 목록 (PRD: 비워 두고 시작하여 추천 결과를 보며 채움)
 // 예: [['블랙', '브라운'], ['레드', '그린']]

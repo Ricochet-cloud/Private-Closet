@@ -5,7 +5,8 @@
  * - 수정: #/cloth/:id
  */
 
-import { addCloth, updateCloth, getCloth, deleteCloth } from "../db.js";
+import { addCloth, updateCloth, getCloth, deleteCloth, getOutfitLogs, summarizeWear } from "../db.js";
+import { formatLogDate } from "../dateUtil.js";
 import { getImage } from "../imageStore.js";
 import { processClothImage } from "../imageResize.js";
 import { 
@@ -77,7 +78,6 @@ export async function renderClothFormView(container, params = {}) {
                     <span class="stat-label">총 착용 횟수</span>
                     <span class="stat-val" id="total-wear-count">0회</span>
                   </div>
-                  <p class="text-xs text-muted mt-2">* 3단계(기록) 구현 후 착용 기록에서 자동 계산됩니다.</p>
                 </div>
               ` : ''}
             </div>
@@ -373,6 +373,17 @@ export async function renderClothFormView(container, params = {}) {
         throw new Error("존재하지 않거나 삭제된 옷입니다.");
       }
       state.existingCloth = cloth;
+
+      // 마지막 착용일·총 착용 횟수: 별도 필드 없이 착용 기록 전체에서 계산 (화면을 막지 않도록 따로 불러옴)
+      getOutfitLogs().then(logs => {
+        const { count, lastDate } = summarizeWear(logs, clothId);
+        const lastEl = container.querySelector("#last-wear-date");
+        const countEl = container.querySelector("#total-wear-count");
+        if (lastEl) lastEl.textContent = lastDate ? formatLogDate(lastDate) : "-";
+        if (countEl) countEl.textContent = `${count}회`;
+      }).catch(err => {
+        console.warn("착용 기록 로드 실패(통계 표시 생략):", err);
+      });
 
       // 폼 값 채우기
       if (cloth.category) {
