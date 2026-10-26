@@ -11,6 +11,7 @@ import { getImage } from "../imageStore.js";
 import { processClothImage } from "../imageResize.js";
 import { 
   CATEGORIES, 
+  SUBCATEGORIES,
   COLORS, 
   THICKNESSES, 
   SEASONS, 
@@ -98,6 +99,17 @@ export async function renderClothFormView(container, params = {}) {
                   `).join('')}
                 </div>
               </div>
+
+          <!-- 하위 카테고리 (선택) -->
+          <div class="form-group">
+            <label for="cloth-subcategory" class="form-label">
+              세부 종류 <span class="text-muted text-xs font-normal">(선택)</span>
+              </label>
+              <select id="cloth-subcategory" name="subcategory" class="form-control" disabled>
+                <option value="">먼저 카테고리를 선택해주세요</option>
+            </select>
+          </div>
+
 
               <!-- 이름 (선택, 비우면 카테고리명) -->
               <div class="form-group">
@@ -271,6 +283,34 @@ export async function renderClothFormView(container, params = {}) {
   const selectedMoodsContainer = container.querySelector("#selected-moods-container");
   const customMoodInput = container.querySelector("#custom-mood-input");
   const btnAddCustomMood = container.querySelector("#btn-add-custom-mood");
+  const subcategorySelect = container.querySelector("#cloth-subcategory");
+
+function updateSubcategoryOptions(category, selectedValue = "") {
+  const options = SUBCATEGORIES[category] || [];
+
+  subcategorySelect.innerHTML =
+    `<option value="">세부 종류 선택 안 함</option>` +
+    options.map(value =>
+      `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`
+    ).join("");
+
+  subcategorySelect.disabled = options.length === 0;
+
+  if (!options.length) {
+    subcategorySelect.innerHTML =
+      `<option value="">선택 가능한 세부 종류 없음</option>`;
+  }
+
+  if (selectedValue && options.includes(selectedValue)) {
+    subcategorySelect.value = selectedValue;
+  }
+}
+
+container.querySelectorAll('input[name="category"]').forEach(radio => {
+  radio.addEventListener("change", () => {
+    updateSubcategoryOptions(radio.value);
+  });
+});
 
   // 무드 태그 렌더링 함수
   function updateMoodChips() {
@@ -387,9 +427,18 @@ export async function renderClothFormView(container, params = {}) {
 
       // 폼 값 채우기
       if (cloth.category) {
-        const catRadio = clothForm.querySelector(`input[name="category"][value="${cloth.category}"]`);
+        const catRadio = clothForm.querySelector(
+          `input[name="category"][value="${cloth.category}"]`
+        );
+
         if (catRadio) catRadio.checked = true;
-      }
+
+      updateSubcategoryOptions(
+        cloth.category,
+        cloth.subcategory || ""
+          );
+        }
+
       if (cloth.name) clothForm.elements["name"].value = cloth.name;
       if (cloth.brand) clothForm.elements["brand"].value = cloth.brand;
       if (cloth.color) clothForm.elements["color"].value = cloth.color;
@@ -495,6 +544,7 @@ export async function renderClothFormView(container, params = {}) {
 
     // 입력값 취합
     const category = categoryInput.value;
+    const subcategory = subcategorySelect.value;
     const name = clothForm.elements["name"].value.trim();
     const brand = clothForm.elements["brand"].value.trim();
     const color = clothForm.elements["color"].value;
@@ -509,6 +559,7 @@ export async function renderClothFormView(container, params = {}) {
 
     const clothData = {
       category,
+      subcategory,
       name,
       brand,
       color,

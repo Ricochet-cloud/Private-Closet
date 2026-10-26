@@ -147,7 +147,7 @@ function renderGrid(clothes, activeCategory, searchText, sortBy, container, page
   const query = searchText.trim().toLocaleLowerCase();
   let filtered = clothes.filter(item => {
     const categoryMatch = activeCategory === "전체" || item.category === activeCategory;
-    const searchable = [item.name, item.brand, item.category, item.color, item.thickness, ...(Array.isArray(item.moods) ? item.moods : [])]
+    const searchable = [item.name, item.brand, item.category, item.subcategory, item.color, item.thickness, ...(Array.isArray(item.moods) ? item.moods : [])]
       .filter(Boolean).join(" ").toLocaleLowerCase();
     return categoryMatch && (!query || searchable.includes(query));
   });
@@ -188,7 +188,9 @@ function renderGrid(clothes, activeCategory, searchText, sortBy, container, page
           ${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(displayName)}" class="cloth-thumb" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.hidden=false">` : ""}
           <div class="closet-image-fallback" ${image ? "hidden" : ""}>NO IMAGE</div>
           ${!item.thickness ? `<span class="badge badge-warning" title="두께 정보가 없어 날씨 추천에서 제외됩니다">정보 부족</span>` : ""}
-          <span class="badge badge-category">${escapeHtml(item.category || "기타")}</span>
+          <span class="badge badge-category">${escapeHtml(item.category || "기타")}</span><span class="badge badge-category">
+            ${escapeHtml(item.category || "기타")}${item.subcategory ? ` · ${escapeHtml(item.subcategory)}` : ""}
+              </span>
         </div>
         <div class="cloth-info">
           <div class="cloth-title-row"><h4 class="cloth-name">${escapeHtml(displayName)}</h4></div>

@@ -93,6 +93,7 @@ export async function addCloth(clothData, detailImageData) {
   const colRef = collection(db, CLOTHES_COLLECTION);
   const payload = {
     category: clothData.category,
+    subcategory: clothData.subcategory || "",
     name: clothData.name ? clothData.name.trim() : "",
     brand: clothData.brand ? clothData.brand.trim() : "",
     color: clothData.color || "",
@@ -132,6 +133,7 @@ export async function updateCloth(id, clothData, newDetailImageData = null) {
   const docRef = doc(db, CLOTHES_COLLECTION, id);
   const payload = {
     category: clothData.category,
+    subcategory: clothData.subcategory || "",
     name: clothData.name ? clothData.name.trim() : "",
     brand: clothData.brand ? clothData.brand.trim() : "",
     color: clothData.color || "",
