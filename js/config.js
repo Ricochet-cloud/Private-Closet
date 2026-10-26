@@ -157,7 +157,7 @@ export const AI_CONFIG = {
 
   // 모델 이름은 Firebase 공식 문서의 "지원 모델" 목록에서 확인한 값만 쓴다.
   // 무료 사용 가능 여부와 한도는 Firebase 콘솔 / AI Studio 의 rate-limit 화면에서 직접 확인한다.
-  recommendModel: "gemini-3.8-flash",
+  recommendModel: "gemini-3.5-flash-lite",
   photoModel: "gemini-3.5-flash-lite",
 
   maxRecommendations: 3,         // 한 번에 보여줄 최대 코디 수
