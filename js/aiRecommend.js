@@ -30,7 +30,7 @@ const ERROR_MESSAGES = {
   "api-not-enabled": "Firebase AI Logic(Gemini Developer API)이 아직 켜져 있지 않아요. Firebase 콘솔에서 AI Logic을 설정해주세요.",
   "permission": "AI 호출 권한이 거부됐어요. API 키 제한과 AI Logic 설정을 확인해주세요.",
   "model": "설정된 AI 모델을 찾을 수 없어요. config.js 의 모델 이름을 공식 지원 목록과 비교해주세요.",
-  "network": "인터넷 연결을 확인해주세요.",
+  "network": "AI 서버와 연결이 끊겼어요. 인터넷 연결을 확인하고, 응답을 기다리는 동안 화면을 끄거나 다른 앱으로 나가지 말고 다시 시도해주세요.",
   "blocked": "AI가 안전 기준 때문에 응답하지 않았어요. 다시 시도해주세요.",
   "timeout": "AI 응답이 너무 오래 걸려 중단했어요. 다시 시도해주세요.",
   "invalid-response": "AI 응답 형식이 올바르지 않아 사용하지 않았어요. 다시 시도해주세요.",
@@ -69,7 +69,8 @@ export function classifyAiError(err) {
   else if (/PERMISSION_DENIED|\b403\b|API key not valid|unauthori[sz]ed|\b401\b/i.test(text)) code = "permission";
   else if (/\b404\b|NOT_FOUND|model.*(not found|not supported|no longer)/i.test(text)) code = "model";
   else if (/SAFETY|PROHIBITED|blocked|response-error/i.test(text)) code = "blocked";
-  else if (/failed to fetch|fetch-error|network|offline|ERR_INTERNET/i.test(text)) code = "network";
+  // "Load failed" 는 iOS Safari 가 네트워크 연결이 끊겼을 때 내는 문구, "Failed to fetch" 는 Chrome 계열
+  else if (/failed to fetch|load failed|fetch-error|network|offline|ERR_INTERNET/i.test(text)) code = "network";
   else if (globalThis.navigator && globalThis.navigator.onLine === false) code = "network";
 
   return new AiError(code, err instanceof Error ? err : null, String(err?.message || "").slice(0, 200));
