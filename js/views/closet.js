@@ -7,6 +7,23 @@ import { CATEGORIES } from "../config.js";
 
 let currentCategoryTab = "전체";
 
+const COLS_OPTIONS = [2, 3, 4, 6];
+const COLS_STORAGE_KEY = "closetGridCols";
+
+function loadSavedCols() {
+  try {
+    const n = Number(localStorage.getItem(COLS_STORAGE_KEY));
+    return COLS_OPTIONS.includes(n) ? n : null;
+  } catch (e) { return null; }
+}
+function saveCols(n) {
+  try { localStorage.setItem(COLS_STORAGE_KEY, String(n)); } catch (e) {}
+}
+function defaultCols() {
+  const w = window.innerWidth;
+  return w >= 900 ? 4 : w >= 640 ? 3 : 2;
+}
+
 export async function renderClosetView(container) {
   container.innerHTML = `
     <div class="closet-page closet-page--refined">
@@ -67,6 +84,13 @@ export async function renderClosetView(container) {
           </select>
         </div>
 
+        <div class="grid-size-switch" role="group" aria-label="한 줄에 보이는 옷 개수">
+          <span class="grid-size-label">한 줄에</span>
+             ${COLS_OPTIONS.map(n => `
+              <button type="button" class="grid-size-btn" data-cols="${n}" aria-pressed="false">${n}개</button>
+                `).join('')}
+          </div>
+
         <div class="category-tabs-container closet-category-wrap">
           <div class="category-tabs" id="category-tabs" role="tablist" aria-label="카테고리 필터">
             <button type="button" class="tab-btn ${currentCategoryTab === '전체' ? 'active' : ''}" data-category="전체" role="tab" aria-selected="${currentCategoryTab === '전체'}">
@@ -90,6 +114,24 @@ export async function renderClosetView(container) {
   const gridContainer = container.querySelector("#closet-grid-container");
   const tabButtons = [...container.querySelectorAll(".tab-btn")];
   const searchInput = container.querySelector("#closet-search-input");
+  const sizeButtons = container.querySelectorAll(".grid-size-btn");
+  const applyCols = (n) => {
+  gridContainer.dataset.cols = String(n);
+  gridContainer.style.setProperty("--cols", String(n));
+  sizeButtons.forEach(btn => {
+    const on = Number(btn.dataset.cols) === n;
+    btn.classList.toggle("active", on);
+    btn.setAttribute("aria-pressed", String(on));
+      });
+  };
+  applyCols(loadSavedCols() || defaultCols());
+    sizeButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+  const n = Number(btn.dataset.cols);
+    applyCols(n);
+    saveCols(n);
+          });
+      });
   const sortSelect = container.querySelector("#closet-sort-select");
   let allClothes = [];
 
