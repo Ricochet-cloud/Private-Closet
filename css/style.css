@@ -1933,3 +1933,82 @@ button, input, select, textarea {
   color: var(--color-text);
   overflow-wrap: anywhere;
 }
+/* Private Closet — refined archive home. Append to css/style.css. */
+.closet-page--refined { --closet-line: rgba(27, 42, 73, .14); }
+.closet-page--refined .closet-hero {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+  padding: 10px 0 28px; border-bottom: 1px solid var(--color-border);
+}
+.closet-page--refined .closet-eyebrow {
+  margin-bottom: 8px; color: var(--color-brass-dark); font-family: var(--font-serif);
+  font-size: 11px; font-weight: 700; letter-spacing: .18em;
+}
+.closet-page--refined .page-title { font-size: clamp(2rem, 4vw, 2.75rem); line-height: 1.15; letter-spacing: -.04em; }
+.closet-page--refined .closet-title-period { color: var(--color-brass); }
+.closet-page--refined .page-subtitle { margin-top: 10px; }
+.closet-page--refined .closet-hero-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.closet-page--refined .closet-hero-actions .btn { gap: 10px; }
+.closet-page--refined .closet-overview {
+  display: grid; grid-template-columns: 1.2fr 1fr 1fr; margin: 22px 0 42px;
+  border: 1px solid var(--color-border); background: var(--color-surface);
+}
+.closet-page--refined .closet-stat { min-width: 0; padding: 20px 24px; border-left: 1px solid var(--color-border); }
+.closet-page--refined .closet-stat:first-child { border-left: 0; }
+.closet-page--refined .closet-stat--primary { background: var(--color-navy); color: var(--color-surface); }
+.closet-page--refined .closet-stat-label { display: block; font-family: var(--font-serif); font-size: 10px; letter-spacing: .15em; opacity: .76; }
+.closet-page--refined .closet-stat-value { display: flex; align-items: baseline; gap: 7px; margin: 8px 0 3px; }
+.closet-page--refined .closet-stat-value strong { font-family: var(--font-serif); font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 600; line-height: 1.1; }
+.closet-page--refined .closet-stat-value span { font-size: 12px; opacity: .8; }
+.closet-page--refined .closet-stat-note { font-size: 12px; color: var(--color-text-muted); }
+.closet-page--refined .closet-stat--primary .closet-stat-note { color: rgba(251,248,241,.72); }
+.closet-page--refined .closet-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.closet-page--refined .closet-section-heading .closet-eyebrow { margin-bottom: 4px; }
+.closet-page--refined .closet-section-heading h2 { font-family: var(--font-serif); font-size: 1.55rem; font-weight: 600; letter-spacing: -.025em; }
+.closet-page--refined .closet-result-count { padding-bottom: 3px; color: var(--color-text-muted); font-size: 12px; white-space: nowrap; }
+.closet-page--refined .closet-tools { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.closet-page--refined .closet-search { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; min-height: 44px; padding: 0 12px; background: var(--color-surface); border: 1px solid var(--color-border); }
+.closet-page--refined .closet-search:focus-within { border-color: var(--color-brass); outline: 1px solid var(--color-brass); }
+.closet-page--refined .closet-search-icon { color: var(--color-navy); font-size: 25px; line-height: 1; }
+.closet-page--refined .closet-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 13px; }
+.closet-page--refined .closet-search input::placeholder { color: var(--color-text-subtle); }
+.closet-page--refined .closet-search kbd { color: var(--color-text-subtle); font-size: 9px; letter-spacing: .1em; white-space: nowrap; }
+.closet-page--refined .closet-sort-label { color: var(--color-text-muted); font-size: 12px; white-space: nowrap; }
+.closet-page--refined .closet-sort-select { width: auto; min-width: 125px; min-height: 44px; padding: 8px 30px 8px 10px; font-size: 12px; }
+.closet-page--refined .closet-category-wrap { margin-bottom: 20px; border-bottom: 1px solid var(--color-border); }
+.closet-page--refined .category-tabs { gap: 4px; }
+.closet-page--refined .tab-btn { white-space: nowrap; }
+.closet-page--refined .tab-count { margin-left: 5px; }
+.closet-page--refined .cloth-grid { gap: 18px; }
+.closet-page--refined .cloth-card { min-width: 0; transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease; }
+.closet-page--refined .cloth-card:hover { transform: translateY(-3px); }
+.closet-page--refined .cloth-thumb-wrap { position: relative; overflow: hidden; background: #eee9df; }
+.closet-page--refined .cloth-thumb { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.closet-page--refined .closet-image-fallback { display: grid; place-items: center; width: 100%; aspect-ratio: 4 / 5; color: var(--color-text-subtle); font-family: var(--font-serif); font-size: 11px; letter-spacing: .16em; background: repeating-linear-gradient(135deg, #eee9df, #eee9df 10px, #e8e2d7 10px, #e8e2d7 20px); }
+.closet-page--refined .closet-image-fallback[hidden] { display: none; }
+.closet-page--refined .cloth-info { padding: 12px 2px 14px; }
+.closet-page--refined .cloth-name { font-size: 14px; line-height: 1.45; }
+.closet-page--refined .cloth-brand { margin-top: 4px; font-size: 12px; }
+.closet-page--refined .closet-no-brand { opacity: .7; }
+.closet-page--refined .closet-empty-state { margin-top: 8px; }
+.closet-page--refined .closet-empty-mark { margin-bottom: 12px; color: var(--color-brass-dark); font-family: var(--font-serif); font-size: 34px; }
+@media (max-width: 640px) {
+  .closet-page--refined .closet-hero { align-items: flex-start; flex-direction: column; gap: 18px; padding-bottom: 22px; }
+  .closet-page--refined .closet-hero-actions { width: 100%; }
+  .closet-page--refined .closet-hero-actions .btn { flex: 1; padding-inline: 10px; }
+  .closet-page--refined .closet-overview { grid-template-columns: 1fr 1fr; margin: 16px 0 32px; }
+  .closet-page--refined .closet-stat { padding: 15px 14px; border-left: 0; border-top: 1px solid var(--color-border); }
+  .closet-page--refined .closet-stat:first-child { grid-column: 1 / -1; border-top: 0; }
+  .closet-page--refined .closet-stat:nth-child(3) { border-left: 1px solid var(--color-border); }
+  .closet-page--refined .closet-stat-value strong { font-size: 1.8rem; }
+  .closet-page--refined .closet-stat-note { font-size: 11px; }
+  .closet-page--refined .closet-section-heading h2 { font-size: 1.35rem; }
+  .closet-page--refined .closet-tools { flex-wrap: wrap; }
+  .closet-page--refined .closet-search { flex-basis: 100%; }
+  .closet-page--refined .closet-sort-label { margin-left: auto; }
+  .closet-page--refined .closet-sort-select { flex: 0 1 155px; }
+  .closet-page--refined .cloth-grid { gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .closet-page--refined .cloth-card { transition: none; }
+  .closet-page--refined .cloth-card:hover { transform: none; }
+}
