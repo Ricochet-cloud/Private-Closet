@@ -123,7 +123,7 @@ const firebaseClient = {
       console.warn("App Check 사이트 키가 비어 있습니다. 2026-11-02 이후에는 AI Logic 호출이 거부될 수 있습니다.");
     }
 
-    const { getAI, getGenerativeModel, GoogleAIBackend, Schema } = await import(`${FIREBASE_SDK_BASE}/firebase-ai.js`);
+    const { getAI, getGenerativeModel, GoogleAIBackend, Schema, ThinkingLevel } = await import(`${FIREBASE_SDK_BASE}/firebase-ai.js`);
 
     const aiOptions = { backend: new GoogleAIBackend() };
     if (AI_CONFIG.appCheck.useLimitedUseTokens) {
@@ -131,14 +131,18 @@ const firebaseClient = {
     }
     const ai = getAI(app, aiOptions);
 
-    const generativeModel = getGenerativeModel(ai, {
-      model,
-      systemInstruction,
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: toSdkSchema(Schema, schemaSpec)
-      }
-    });
+    const generationConfig = {
+      responseMimeType: "application/json",
+      responseSchema: toSdkSchema(Schema, schemaSpec)
+    };
+
+    // 코디 추천 모델의 "생각 시간"을 줄여 응답을 빠르게 한다. (config.js 의 recommendThinkingLevel, 빈 값이면 모델 기본값)
+    const level = AI_CONFIG.recommendThinkingLevel;
+    if (model === AI_CONFIG.recommendModel && level && ThinkingLevel && ThinkingLevel[level]) {
+      generationConfig.thinkingConfig = { thinkingLevel: ThinkingLevel[level] };
+    }
+
+    const generativeModel = getGenerativeModel(ai, { model, systemInstruction, generationConfig });
 
     const result = await generativeModel.generateContent(parts);
     return result.response.text();
