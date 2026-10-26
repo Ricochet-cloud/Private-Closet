@@ -2014,11 +2014,13 @@ button, input, select, textarea {
 }
 
 .closet-banner {
+  position: relative;
+  left: 50%;
   width: 100vw;
-  margin-left: calc(50% - 50vw);   /* 본문 폭을 벗어나 화면 양끝까지 */
+  margin-left: -50vw;                       /* 본문 폭을 벗어나 화면 양끝까지 */
   margin-top: calc(-1 * var(--spacing-6));  /* 헤더와의 틈 없애기 */
   margin-bottom: var(--spacing-6);
-  height: 320px;                   /* 더 크게 */
+  height: 320px;
   overflow: hidden;
 }
 
@@ -2033,3 +2035,5 @@ button, input, select, textarea {
 @media (max-width: 640px) {
   .closet-banner { height: 200px; }
 }
+
+html, body { overflow-x: hidden; }
