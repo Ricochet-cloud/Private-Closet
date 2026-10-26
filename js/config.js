@@ -162,7 +162,8 @@ export const AI_CONFIG = {
 
   maxRecommendations: 3,         // 한 번에 보여줄 최대 코디 수
   photoBatchSize: 6,             // 사진 분석 1회 호출에 담는 옷 수
-  requestTimeoutMs: 60000,       // 응답을 기다리는 최대 시간 (초과하면 실패 처리, 자동 재시도 없음)
+  requestTimeoutMs: 120000,       // 응답을 기다리는 최대 시간 (초과하면 실패 처리, 자동 재시도 없음)
+  recommendThinkingLevel: "LOW",  // 추천 시 사고 수준 (LOW / MEDIUM / HIGH)
   recentWearDays: 4,             // AI에게 알려줄 최근 착용 일수 (오늘 제외)
   maxVisualDescriptionChars: 200, // 저장할 시각적 설명의 최대 글자 수
   maxFieldChars: 300,            // 메모·이름 등 사용자 입력을 AI에 보낼 때의 최대 글자 수
