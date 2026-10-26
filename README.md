@@ -19,6 +19,7 @@
 │  ├─ db.js             # Firestore 'clothes' CRUD, 'outfitLogs'(착용 기록) 저장·삭제·조회
 │  ├─ dateUtil.js       # 한국 시간(Asia/Seoul) 기준 날짜 계산·표시 헬퍼
 │  ├─ weather.js        # Open-Meteo 날씨 조회 (API 키 불필요)
+│  ├─ aiRecommend.js    # [4단계] AI 코디 추천·옷 사진 분석 (Firebase AI Logic), 응답 검증
 │  ├─ recommend.js      # 추천 규칙 (날씨·무드·반복 방지·최근 착용 감점, 순수 함수)
 │  ├─ moodMatrix.js     # 무드 궁합표
 │  ├─ imageResize.js    # Canvas 기반 고화질(1200px) 및 썸네일(400px) WebP 압축
@@ -115,7 +116,7 @@ python -m http.server 8000
 3. 콘솔 창에 아래 명령어를 입력하고 실행합니다:
    ```javascript
    const { db } = await import('./js/firebase.js');
-   const { getDocs, collection } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
+   const { getDocs, collection } = await import('https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js');
    await getDocs(collection(db, 'clothes'));
    ```
 4. **확인 결과:** 콘솔에 `FirebaseError: [code=permission-denied]: Missing or insufficient permissions.` 에러가 발생하면 비인가 접근이 완벽히 차단된 것입니다.
@@ -149,3 +150,49 @@ node --experimental-default-type=module test-recommend.js
 ```
 
 한국 시간 날짜 경계, 최근 4일 반복 방지, 옷 1벌당 0.25점 감점, "입음" 표시 규칙을 확인합니다.
+
+---
+
+## 🤖 4단계: AI 코디 추천 설정
+
+오늘의 코디 화면에 **AI 추천** 탭이 생깁니다. 기존 점수 방식은 **기존 방식 (점수)** 탭으로 그대로 남아 있습니다.
+
+### 쓰는 방법
+
+1. `#/today` → **AI 추천** 탭에서 **사진 분석하기**를 누르면 AI가 옷 사진의 색·패턴·핏을 짧게 적어 옷 문서에 저장합니다. (분석이 없는 옷만, 한 번에 `photoBatchSize`벌씩)
+2. **AI 코디 추천 받기**를 누르면 AI가 옷장 전체 + 오늘 날씨 + 최근 4일 착용 기록을 보고 코디를 최대 3개 고릅니다. 레이어 순서와 이유가 함께 나옵니다.
+3. 마음에 들면 **오늘 이걸 입었어요**로 기록합니다. (기존 착용 기록과 같은 기능)
+
+AI 호출은 **버튼을 누를 때만** 일어납니다. 화면에 들어오기만 해서는 호출하지 않고, 실패해도 자동으로 다시 보내지 않습니다.
+
+### 내가 해야 할 설정 (Firebase 콘솔)
+
+1. **AI Logic 켜기**: Firebase 콘솔 > **AI Logic** > 시작하기 > **Gemini Developer API**를 고릅니다. 요금제는 Spark(무료)를 유지해도 시작할 수 있습니다. (결제 계정을 연결하면 그때부터 모든 사용량이 종량제입니다)
+2. **App Check (필수, 2026-11-02부터)**: 콘솔 > 보안 > **App Check** > 웹 앱 등록 > **reCAPTCHA Enterprise**. 발급된 사이트 키를 `js/config.js`의 `AI_CONFIG.appCheck.recaptchaEnterpriseSiteKey`에 넣고, App Check > API 탭에서 **Firebase AI Logic**을 **시행됨**으로 바꿉니다. reCAPTCHA Enterprise는 월 1만 건까지 무료이고 결제 계정 없이 쓸 수 있습니다.
+   - 로컬(`localhost`)에서 테스트하면 브라우저 콘솔에 디버그 토큰이 출력됩니다. 콘솔 > App Check > 앱 > **디버그 토큰 관리**에 등록하세요. 디버그 토큰은 저장소에 올리지 마세요. `localhost`를 reCAPTCHA 허용 도메인에 추가하지 마세요.
+3. **API 키 제한**: Google Cloud 콘솔 > API 및 서비스 > 사용자 인증 정보 > 웹 API 키에서 *애플리케이션 제한*을 HTTP 리퍼러(`https://<내 GitHub 아이디>.github.io/*`)로 두고, *API 제한*에 **Firebase AI Logic API**(`firebasevertexai.googleapis.com`)를 포함합니다.
+4. **사용량 관리**: AI Logic 화면에서 모니터링을 켜고 사용자별 요청 제한을 확인합니다. 모델별 무료 한도는 문서에 숫자가 없으므로 [AI Studio의 rate-limit 화면](https://aistudio.google.com/rate-limit)에서 직접 확인하세요.
+5. **GitHub Pages에 배포**한 뒤 실제 주소에서 AI 추천을 한 번 눌러 확인합니다.
+
+### 모델 이름 바꾸기
+
+모델 이름은 `js/config.js`의 `AI_CONFIG.recommendModel`(코디 추천), `AI_CONFIG.photoModel`(사진 분석)에서만 바꿉니다. Firebase 공식 문서의 *지원 모델* 목록에 있는 이름만 쓰세요. 모델이 종료되면 "설정된 AI 모델을 찾을 수 없어요"가 뜹니다.
+
+### Firebase SDK 버전
+
+AI Logic을 쓰려고 SDK를 **13.1.0**으로 올렸습니다. `firebase.js`, `auth.js`, `db.js`, `imageStore.js`의 import 주소와 `config.js`의 `FIREBASE_SDK_BASE`는 **항상 같은 버전**이어야 합니다. 버전을 바꿀 땐 이 5곳을 함께 고치세요.
+
+### 개인정보
+
+사진 분석을 누르면 옷 사진이 Google의 Gemini API로 전송되고, 추천을 받을 때는 옷 이름·브랜드·메모 등 옷장 정보가 전송됩니다. 개인적인 내용을 메모에 적지 마세요. 무료 이용 시 데이터 사용 조건은 Gemini API 약관에서 직접 확인하세요.
+
+### 오류 해결
+
+| 화면 메시지 | 확인할 것 |
+|---|---|
+| App Check 인증에 실패했어요 | 사이트 키 입력, 도메인 허용, 로컬이면 디버그 토큰 등록 |
+| AI Logic이 아직 켜져 있지 않아요 | 콘솔에서 AI Logic 시작하기를 했는지 |
+| AI 호출 권한이 거부됐어요 | API 키 제한(리퍼러·API 목록) |
+| 요청 한도를 넘었어요 | 잠시 뒤 재시도, AI Studio에서 한도·사용량 확인 |
+| 모델을 찾을 수 없어요 | `config.js`의 모델 이름 |
+| 응답 형식이 올바르지 않아요 | 다시 시도 (잘못된 응답은 화면에 쓰지 않고 버립니다) |

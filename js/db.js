@@ -15,8 +15,9 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  deleteField,
   serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
 const CLOTHES_COLLECTION = "clothes";
 const OUTFIT_LOGS_COLLECTION = "outfitLogs";
@@ -100,6 +101,7 @@ export async function addCloth(clothData, detailImageData) {
     moods: Array.isArray(clothData.moods) ? clothData.moods : [],
     memo: clothData.memo ? clothData.memo.trim() : "",
     thumb: clothData.thumb,
+    imageUpdatedAt: serverTimestamp(), // 4단계: 사진이 마지막으로 바뀐 시각 (AI 사진 분석 갱신 판단용)
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   };
@@ -145,6 +147,13 @@ export async function updateCloth(id, clothData, newDetailImageData = null) {
     payload.thumb = clothData.thumb;
   }
 
+  // 4단계: 사진이 교체되면 이전 사진의 AI 시각적 설명은 무효화한다 (다음 사진 분석 때 다시 만든다)
+  if (newDetailImageData) {
+    payload.imageUpdatedAt = serverTimestamp();
+    payload.aiVisualDescription = deleteField();
+    payload.aiImageAnalyzedAt = deleteField();
+  }
+
   await updateDoc(docRef, payload);
 
   // 보기용 상세 이미지가 변경된 경우 업데이트
@@ -153,6 +162,26 @@ export async function updateCloth(id, clothData, newDetailImageData = null) {
   }
 
   return id;
+}
+
+/**
+ * AI 사진 분석 결과 저장 (4단계)
+ * 사용자가 직접 입력한 정보(이름·색상 등)는 건드리지 않고 AI 전용 필드 2개만 갱신한다.
+ * @param {string} id 옷 문서 ID
+ * @param {string} description 사진에서 확인한 시각적 특징
+ */
+export async function saveAiVisualDescription(id, description) {
+  assertDbAvailable();
+  if (!id) throw new Error("옷 ID가 필요합니다.");
+  if (!description || !String(description).trim()) {
+    throw new Error("저장할 시각적 설명이 비어 있습니다.");
+  }
+
+  await updateDoc(doc(db, CLOTHES_COLLECTION, id), {
+    aiVisualDescription: String(description).trim(),
+    aiImageAnalyzedAt: serverTimestamp()
+  });
+  return true;
 }
 
 /**

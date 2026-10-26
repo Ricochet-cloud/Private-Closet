@@ -145,6 +145,39 @@ export const SCORE_CONSTANTS = {
   repeatPreventDays: 4     // 반복 방지 일수 (오늘 제외, 어제부터 4일 전까지)
 };
 
+// [4단계] Firebase SDK CDN 주소 (동적으로 불러오는 모듈용)
+// firebase.js, auth.js, db.js, imageStore.js 의 import 주소 버전과 반드시 같아야 한다.
+// app / auth / firestore / app-check / ai 는 한 가지 버전으로 통일해야 서로 연결된다.
+export const FIREBASE_SDK_BASE = "https://www.gstatic.com/firebasejs/13.1.0";
+
+// [4단계] AI 코디 추천 설정 (모델 이름과 호출 제한값은 여기서만 바꾼다)
+export const AI_CONFIG = {
+  // false 로 두면 AI 버튼이 사라지고 기존 점수 추천만 보인다
+  enabled: true,
+
+  // 모델 이름은 Firebase 공식 문서의 "지원 모델" 목록에서 확인한 값만 쓴다.
+  // 무료 사용 가능 여부와 한도는 Firebase 콘솔 / AI Studio 의 rate-limit 화면에서 직접 확인한다.
+  recommendModel: "gemini-3.8-flash",
+  photoModel: "gemini-3.5-flash-lite",
+
+  maxRecommendations: 3,         // 한 번에 보여줄 최대 코디 수
+  photoBatchSize: 6,             // 사진 분석 1회 호출에 담는 옷 수
+  requestTimeoutMs: 60000,       // 응답을 기다리는 최대 시간 (초과하면 실패 처리, 자동 재시도 없음)
+  recentWearDays: 4,             // AI에게 알려줄 최근 착용 일수 (오늘 제외)
+  maxVisualDescriptionChars: 200, // 저장할 시각적 설명의 최대 글자 수
+  maxFieldChars: 300,            // 메모·이름 등 사용자 입력을 AI에 보낼 때의 최대 글자 수
+
+  // 사용자 스타일 취향 (AI에게 참고 정보로만 전달)
+  stylePreference: "아메카지, 워크웨어, 빈티지, 아이비 계열을 좋아함. 차분한 색 조합을 선호함.",
+
+  // App Check (reCAPTCHA Enterprise). 2026-11-02 부터 AI Logic 사용에 필수.
+  // 사이트 키는 비밀 값이 아니지만 콘솔에서 만든 값을 직접 넣어야 한다. 비워 두면 App Check 를 초기화하지 않는다.
+  appCheck: {
+    recaptchaEnterpriseSiteKey: "6Lcr6AAuAAAAAKDDmy7DIfeKuP2Gtzgr-t4C5sqS",
+    useLimitedUseTokens: false
+  }
+};
+
 // [3단계] 날짜 기준 시간대 (착용 기록 문서 ID와 반복 방지 일수 계산에 사용)
 export const TIMEZONE = "Asia/Seoul";
 
