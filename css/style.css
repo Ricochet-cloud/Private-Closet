@@ -2012,3 +2012,24 @@ button, input, select, textarea {
   .closet-page--refined .cloth-card { transition: none; }
   .closet-page--refined .cloth-card:hover { transform: none; }
 }
+
+.closet-banner {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);   /* 본문 폭을 벗어나 화면 양끝까지 */
+  margin-top: calc(-1 * var(--spacing-6));  /* 헤더와의 틈 없애기 */
+  margin-bottom: var(--spacing-6);
+  height: 320px;                   /* 더 크게 */
+  overflow: hidden;
+}
+
+.closet-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .closet-banner { height: 200px; }
+}

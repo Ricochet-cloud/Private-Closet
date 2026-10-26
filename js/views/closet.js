@@ -12,6 +12,8 @@ export async function renderClosetView(container) {
     <div class="closet-page closet-page--refined">
       <section class="closet-hero">
         <div class="closet-hero-copy">
+        <div class="closet-banner">
+          <img src="images/banner.webp" alt="" /> </div>
           <p class="closet-eyebrow">YOUR PERSONAL ARCHIVE</p>
           <h1 class="page-title">내 옷장<span class="closet-title-period">.</span></h1>
           <p class="page-subtitle text-muted">가지고 있는 옷을 기록하고, 나만의 스타일을 쌓아보세요.</p>
