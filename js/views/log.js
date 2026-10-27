@@ -11,6 +11,7 @@ import { getClothes, getOutfitLogs, saveOutfitLog, deleteOutfitLog } from "../db
 import { fetchTodayWeather } from "../weather.js";
 import { getKstDateString, formatLogDate } from "../dateUtil.js";
 import { CATEGORIES, MANUAL_LOG_LABEL } from "../config.js";
+import { getTopWorn, getCurrentSeason, DEFAULT_EXCLUDED_CATEGORIES } from "../wearStats.js";
 
 export async function renderLogView(container) {
   const todayStr = getKstDateString();
@@ -30,6 +31,8 @@ export async function renderLogView(container) {
 
       <div id="manual-log-panel" class="manual-log-panel" style="display: none;"></div>
 
+      <div id="top-worn-container"></div>
+
       <div id="log-list-container">
         <div class="loading-state">
           <div class="spinner"></div>
@@ -39,6 +42,7 @@ export async function renderLogView(container) {
     </div>
   `;
 
+  const topWornContainer = container.querySelector("#top-worn-container");
   const listContainer = container.querySelector("#log-list-container");
   const panel = container.querySelector("#manual-log-panel");
   const toggleBtn = container.querySelector("#btn-toggle-manual-log");
@@ -62,8 +66,89 @@ export async function renderLogView(container) {
 
   const clothMap = new Map(clothes.map(c => [c.id, c]));
 
+  let currentPeriod = "30d";
+
+  // ----- 가장 많이 입은 옷 TOP 5 -----
+  function renderTopWorn() {
+    if (!topWornContainer) return;
+
+    if (logs.length === 0) {
+      topWornContainer.innerHTML = "";
+      return;
+    }
+
+    const seasonInfo = getCurrentSeason(todayStr);
+    const topItems = getTopWorn(logs, clothes, 5, DEFAULT_EXCLUDED_CATEGORIES, currentPeriod, todayStr);
+
+    let subtitle = "최근 30일 기준 (모자·기타 제외)";
+    if (currentPeriod === "season") {
+      subtitle = `이번 계절(${seasonInfo.season}) 기준 (모자·기타 제외)`;
+    } else if (currentPeriod === "all") {
+      subtitle = "전체 착용 기록 기준 (모자·기타 제외)";
+    }
+
+    topWornContainer.innerHTML = `
+      <section class="top-worn-card" aria-label="가장 많이 입은 옷 TOP 5">
+        <div class="top-worn-header">
+          <div class="top-worn-title-wrap">
+            <h2 class="top-worn-title">가장 많이 입은 옷 TOP 5</h2>
+            <span class="top-worn-subtitle">${escapeHtml(subtitle)}</span>
+          </div>
+          <div class="top-worn-periods" role="tablist" aria-label="통계 기간 선택">
+            <button type="button" class="top-worn-period-btn ${currentPeriod === "30d" ? "active" : ""}" data-period="30d">최근 30일</button>
+            <button type="button" class="top-worn-period-btn ${currentPeriod === "season" ? "active" : ""}" data-period="season">이번 계절 (${seasonInfo.season})</button>
+            <button type="button" class="top-worn-period-btn ${currentPeriod === "all" ? "active" : ""}" data-period="all">전체</button>
+          </div>
+        </div>
+
+        ${topItems.length === 0 ? `
+          <div class="top-worn-empty-period">
+            <p class="text-sm text-muted">선택한 기간 동안의 착용 기록이 없습니다.</p>
+          </div>
+        ` : `
+          <div class="top-worn-list" role="list">
+            ${topItems.map(item => {
+              const label = item.cloth.name ? item.cloth.name.trim() : (item.cloth.category || "옷");
+              const percent = Math.min(100, Math.max(0, Math.round(item.ratio * 100)));
+              return `
+                <a href="#/cloth/${escapeHtml(item.cloth.id)}" class="top-worn-item" role="listitem">
+                  <span class="top-worn-rank">${item.rank}</span>
+                  <img class="top-worn-thumb" src="${escapeHtml(item.cloth.thumb || "")}" alt="${escapeHtml(label)}" loading="lazy" />
+                  <div class="top-worn-content">
+                    <div class="top-worn-row-main">
+                      <span class="top-worn-name">${escapeHtml(label)}</span>
+                      <span class="top-worn-count">${item.count}회</span>
+                    </div>
+                    <div class="top-worn-bar-track">
+                      <div class="top-worn-bar-fill" style="width: ${percent}%;"></div>
+                    </div>
+                    <div class="top-worn-meta">
+                      <span class="top-worn-date">마지막 착용: ${escapeHtml(formatLogDate(item.lastDate))}</span>
+                    </div>
+                  </div>
+                </a>
+              `;
+            }).join("")}
+          </div>
+        `}
+      </section>
+    `;
+  }
+
+  topWornContainer.addEventListener("click", (e) => {
+    const btn = e.target.closest(".top-worn-period-btn");
+    if (!btn) return;
+    const period = btn.getAttribute("data-period");
+    if (period && period !== currentPeriod) {
+      currentPeriod = period;
+      renderTopWorn();
+    }
+  });
+
   // ----- 기록 리스트 -----
   function renderList() {
+    renderTopWorn();
+
     if (logs.length === 0) {
       listContainer.innerHTML = `
         <div class="empty-state">

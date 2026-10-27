@@ -1439,6 +1439,202 @@ button, input, select, textarea {
   color: var(--color-text-muted);
 }
 
+
+/* 가장 많이 입은 옷 TOP 5 카드 */
+.top-worn-card {
+  background-color: var(--color-surface);
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-5);
+  margin-bottom: var(--spacing-6);
+}
+
+.top-worn-header {
+  margin-bottom: var(--spacing-3);
+  padding-bottom: var(--spacing-2);
+  border-bottom: var(--border-thin) solid var(--color-border);
+}
+
+.top-worn-title-wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.top-worn-title {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--color-navy);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.top-worn-subtitle {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.top-worn-periods {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-3);
+}
+
+.top-worn-period-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 var(--spacing-3);
+  background-color: var(--color-surface);
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.top-worn-period-btn:hover {
+  border-color: var(--color-navy);
+  color: var(--color-navy);
+  background-color: var(--color-surface-hover);
+}
+
+.top-worn-period-btn.active {
+  background-color: var(--color-navy);
+  border-color: var(--color-navy);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+.top-worn-empty-period {
+  padding: var(--spacing-6) var(--spacing-4);
+  text-align: center;
+}
+
+
+.top-worn-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.top-worn-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  min-height: var(--touch-target-min);
+  padding: var(--spacing-3) var(--spacing-2);
+  border-bottom: var(--border-thin) solid var(--color-border);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color var(--transition-fast);
+}
+
+.top-worn-item:last-child {
+  border-bottom: none;
+}
+
+.top-worn-item:hover,
+.top-worn-item:focus-visible {
+  background-color: var(--color-surface-hover);
+}
+
+.top-worn-rank {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-navy);
+  min-width: 1.5rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.top-worn-thumb {
+  width: 42px;
+  height: 52px;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-hover);
+  flex-shrink: 0;
+}
+
+.top-worn-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+  gap: var(--spacing-1);
+}
+
+.top-worn-row-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.top-worn-name {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+
+.top-worn-count {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-navy);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.top-worn-bar-track {
+  width: 100%;
+  height: 6px;
+  background-color: var(--color-navy-tint);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.top-worn-bar-fill {
+  height: 100%;
+  background-color: var(--color-navy);
+  border-radius: var(--radius-sm);
+  min-width: 2px;
+  transition: width 200ms ease;
+}
+
+.top-worn-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.top-worn-date {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Placeholder Page */
 .placeholder-page {
   display: flex;
@@ -1595,6 +1791,40 @@ button, input, select, textarea {
     overflow-wrap: anywhere;
   }
 }
+
+
+/* 착용 통계 TOP 5 모바일 최적화 */
+  .top-worn-card {
+    padding: var(--spacing-4) var(--spacing-3);
+  }
+
+  .top-worn-periods {
+    width: 100%;
+    gap: var(--spacing-1);
+  }
+
+  .top-worn-period-btn {
+    flex: 1;
+    min-height: 38px;
+    padding: 0 var(--spacing-1);
+    font-size: 11px;
+    text-align: center;
+  }
+
+  .top-worn-item {
+    padding: var(--spacing-2) var(--spacing-1);
+    gap: var(--spacing-2);
+  }
+
+  .top-worn-rank {
+    min-width: 1.25rem;
+    font-size: var(--font-size-sm);
+  }
+
+  .top-worn-thumb {
+    width: 36px;
+    height: 45px;
+  }
 
 /* ==========================================================================
    3단계: 입었어요 체크 / 착용 기록 직접 입력
