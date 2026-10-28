@@ -2312,3 +2312,9 @@ button, input, select, textarea {
 .closet-grid-wrapper[data-cols="4"] .badge-hot-rank { font-size: 10px; }
 .closet-grid-wrapper[data-cols="6"] .badge-hot { padding: 1px 3px; font-size: 10px; }
 .closet-grid-wrapper[data-cols="6"] .badge-hot-rank { display: none; }
+
+/* 착용 기록 > 직접 기록하기: 모바일에서 카테고리 탭이 패널 밖으로 넘치지 않게, 탭 줄만 옆으로 스크롤 */
+.manual-log-panel { min-width: 0; max-width: 100%; box-sizing: border-box; }
+.manual-log-panel .manual-log-tabs { min-width: 0; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.manual-log-panel .manual-log-tabs::-webkit-scrollbar { display: none; }
+.manual-log-panel .manual-log-tabs .tab-btn { flex-shrink: 0; }
