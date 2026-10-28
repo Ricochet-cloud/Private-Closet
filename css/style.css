@@ -2281,3 +2281,34 @@ button, input, select, textarea {
 
 .closet-grid-wrapper[data-cols="6"] .cloth-name { font-size:10px; }
 .closet-grid-wrapper[data-cols="6"] .badge { display:none; }
+
+/* 옷장 목록: 많이 입은 옷 TOP 5 🔥 표시 (사진 왼쪽 아래) */
+.cloth-thumb-wrap .badge-hot {
+  position: absolute;
+  left: var(--spacing-2);
+  bottom: var(--spacing-2);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 7px;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--color-navy);
+  background-color: rgba(255, 255, 255, 0.92);
+  border: var(--border-thin) solid var(--color-brass);
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+ 
+.cloth-thumb-wrap .badge-hot-rank {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  font-weight: 700;
+}
+ 
+/* 4개 이상 보기에서는 조금 작게, 6개에서는 숫자 없이 🔥만 */
+.closet-grid-wrapper[data-cols="4"] .badge-hot { padding: 2px 5px; font-size: 11px; }
+.closet-grid-wrapper[data-cols="4"] .badge-hot-rank { font-size: 10px; }
+.closet-grid-wrapper[data-cols="6"] .badge-hot { padding: 1px 3px; font-size: 10px; }
+.closet-grid-wrapper[data-cols="6"] .badge-hot-rank { display: none; }

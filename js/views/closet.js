@@ -2,10 +2,17 @@
  * views/closet.js
  * 옷장 목록 화면: 요약 통계, 검색/정렬, 카테고리 탭, 썸네일 격자
  */
-import { getClothes } from "../db.js";
+import { getClothes, getOutfitLogs } from "../db.js";
+import { getTopWorn } from "../wearStats.js";
 import { CATEGORIES } from "../config.js";
 
 let currentCategoryTab = "전체";
+
+// 🔥 많이 입은 옷 표시: 착용 횟수 TOP 5 중, 최소 이 횟수 이상 입은 옷에만 붙인다
+const HOT_LIMIT = 5;
+const HOT_MIN_COUNT = 2;
+// 옷 id -> { rank, count }  (옷장 화면을 열 때마다 착용 기록으로 다시 계산)
+let hotRanks = new Map();
 
 const COLS_OPTIONS = [2, 3, 4, 6];
 const COLS_STORAGE_KEY = "closetGridCols";
@@ -136,7 +143,16 @@ export async function renderClosetView(container) {
   let allClothes = [];
 
   try {
-    allClothes = await getClothes();
+    // 착용 기록을 못 불러와도 옷장 목록은 보여 준다 (🔥 표시만 빠진다)
+    const [clothes, logs] = await Promise.all([
+      getClothes(),
+      getOutfitLogs().catch(err => {
+        console.warn("착용 기록을 불러오지 못해 🔥 표시를 건너뜁니다:", err);
+        return [];
+      })
+    ]);
+    allClothes = clothes;
+    hotRanks = buildHotRanks(logs, allClothes);
     updateOverview(allClothes, container);
     updateCategoryCounts(allClothes, container);
     renderGrid(allClothes, currentCategoryTab, searchInput.value, sortSelect.value, gridContainer, container);
@@ -171,6 +187,24 @@ export async function renderClosetView(container) {
   sortSelect.addEventListener("change", () => {
     renderGrid(allClothes, currentCategoryTab, searchInput.value, sortSelect.value, gridContainer, container);
   });
+}
+
+/**
+ * 많이 입은 옷 TOP 5 → Map(옷 id -> {rank, count}). 입은 횟수가 HOT_MIN_COUNT 미만이면 제외한다.
+ * 집계 규칙(삭제된 옷·모자·기타 제외, 동점 처리)은 wearStats.js 의 getTopWorn 과 같다.
+ */
+function buildHotRanks(logs, clothes) {
+  const ranks = new Map();
+  try {
+    for (const entry of getTopWorn(logs, clothes, HOT_LIMIT)) {
+      if (entry.count >= HOT_MIN_COUNT) {
+        ranks.set(entry.cloth.id, { rank: entry.rank, count: entry.count });
+      }
+    }
+  } catch (err) {
+    console.warn("🔥 집계 중 오류:", err);
+  }
+  return ranks;
 }
 
 function updateOverview(clothes, container) {
@@ -226,6 +260,7 @@ function renderGrid(clothes, activeCategory, searchText, sortBy, container, page
     const brand = item.brand || "";
     const moods = Array.isArray(item.moods) ? item.moods : [];
     const image = item.thumb || "";
+    const hot = hotRanks.get(item.id);
     return `
       <a href="#/cloth/${encodeURIComponent(item.id)}" class="cloth-card" title="${escapeHtml(displayName)}">
         <div class="cloth-thumb-wrap">
@@ -235,6 +270,7 @@ function renderGrid(clothes, activeCategory, searchText, sortBy, container, page
           <span class="badge badge-category">${escapeHtml(item.category || "기타")}</span><span class="badge badge-category">
             ${escapeHtml(item.category || "기타")}${item.subcategory ? ` · ${escapeHtml(item.subcategory)}` : ""}
               </span>
+          ${hot ? `<span class="badge-hot" title="가장 많이 입은 옷 ${hot.rank}위 · ${hot.count}회" aria-label="가장 많이 입은 옷 ${hot.rank}위, ${hot.count}회 착용"><span aria-hidden="true">🔥</span><span class="badge-hot-rank" aria-hidden="true">${hot.rank}</span></span>` : ""}
         </div>
         <div class="cloth-info">
           <div class="cloth-title-row"><h4 class="cloth-name">${escapeHtml(displayName)}</h4></div>
