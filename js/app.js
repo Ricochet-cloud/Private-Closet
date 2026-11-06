@@ -18,6 +18,33 @@ let currentUser = null;
 let initialAuthChecked = false;
 
 /**
+ * 테마 관리 함수
+ */
+function initTheme() {
+  const savedTheme = localStorage.getItem("theme") || "light";
+  setTheme(savedTheme);
+}
+
+function setTheme(theme) {
+  if (theme === "dark") {
+    document.documentElement.setAttribute("data-theme", "dark");
+    localStorage.setItem("theme", "dark");
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+    localStorage.setItem("theme", "light");
+  }
+}
+
+function getCurrentTheme() {
+  return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+}
+
+function toggleTheme() {
+  const currentTheme = getCurrentTheme();
+  setTheme(currentTheme === "dark" ? "light" : "dark");
+}
+
+/**
  * 네비게이션 바 렌더링
  */
 function updateNavbar(hash) {
@@ -51,6 +78,9 @@ function updateNavbar(hash) {
           <span class="user-email text-xs text-muted" title="${currentUser.email || ''}">
             ${currentUser.email || '사용자'}
           </span>
+          <button id="btn-theme-toggle" class="btn btn-secondary btn-sm" title="다크모드 토글">
+            ${getCurrentTheme() === "dark" ? "☀️" : "🌙"}
+          </button>
           <button id="btn-logout" class="btn btn-secondary btn-sm">
             로그아웃
           </button>
@@ -58,6 +88,14 @@ function updateNavbar(hash) {
       </div>
     </header>
   `;
+
+  const themeToggleBtn = navContainer.querySelector("#btn-theme-toggle");
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", () => {
+      toggleTheme();
+      updateNavbar(window.location.hash || "#/closet");
+    });
+  }
 
   const logoutBtn = navContainer.querySelector("#btn-logout");
   if (logoutBtn) {
@@ -129,6 +167,9 @@ async function router() {
     window.location.hash = "#/closet";
   }
 }
+
+// 테마 초기화
+initTheme();
 
 // 해시 변경 이벤트 리스너
 window.addEventListener("hashchange", () => {

@@ -11,7 +11,7 @@
   --color-text: #1B1B1B;            /* Deep Charcoal / Ink */
   --color-text-muted: #6B665C;      /* Secondary Muted Text */
   --color-text-subtle: #8E887D;     /* Subtle Helper Text */
-  
+
   --color-navy: #1B2A49;            /* Primary Accent Navy */
   --color-navy-dark: #111B30;       /* Darkened Navy for 150ms hover */
   --color-navy-tint: #EEF2F7;       /* Soft Navy Tint */
@@ -79,6 +79,38 @@
 
   /* 8. Layout */
   --max-width: 1100px;
+}
+
+/* Dark Mode Theme - Polo Ralph Lauren Navy & Gold */
+[data-theme="dark"] {
+  /* Colors for Dark Mode - Classic Navy with Gold Accents */
+  --color-bg: #0F1A28;              /* Deep Navy Background */
+  --color-surface: #1B2E42;         /* Navy Card & Input Background */
+  --color-surface-hover: #2A4558;   /* Navy Hover Surface */
+  --color-text: #F5F1E8;            /* Warm Cream Text */
+  --color-text-muted: #C8B8A8;      /* Light Muted Text */
+  --color-text-subtle: #A89888;     /* Light Subtle Text */
+
+  --color-navy: #A8D5EA;            /* Bright Navy for Dark Mode */
+  --color-navy-dark: #C4E3F5;       /* Lightened Navy hover */
+  --color-navy-tint: #1A3A52;       /* Dark Navy Tint */
+
+  --color-forest: #7CB9A3;          /* Muted Teal/Sage */
+  --color-forest-dark: #9ECFBB;     /* Light Teal hover */
+  --color-forest-tint: #1A3C34;     /* Dark Teal Tint */
+
+  --color-burgundy: #D88FA3;        /* Light Wine Red */
+  --color-burgundy-dark: #E8AEC0;   /* Light Wine hover */
+  --color-burgundy-tint: #452A38;   /* Dark Wine Tint */
+
+  --color-brass: #E6BC3F;           /* Gold/Yellow (Polo Gold) */
+  --color-brass-dark: #F5D570;      /* Light Gold hover */
+  --color-brass-tint: #3D3A28;      /* Dark Gold Tint */
+
+  --color-border: #3A5070;          /* Navy Border */
+  --color-border-dark: #4A6080;     /* Darker Navy Border */
+  --color-white: #0F1A28;           /* Dark White (same as bg) */
+  --color-transparent: transparent; /* Transparent */
 }
 
 /* Base Reset & Foundations */
