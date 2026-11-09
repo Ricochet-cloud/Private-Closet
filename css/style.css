@@ -81,35 +81,35 @@
   --max-width: 1100px;
 }
 
-/* Dark Mode Theme - Polo Ralph Lauren Navy & Gold */
+/* Dark Mode Theme - Polo Ralph Lauren Forest Green & Cream Yellow */
 [data-theme="dark"] {
-  /* Colors for Dark Mode - Classic Navy with Gold Accents */
-  --color-bg: #0F1A28;              /* Deep Navy Background */
-  --color-surface: #1B2E42;         /* Navy Card & Input Background */
-  --color-surface-hover: #2A4558;   /* Navy Hover Surface */
-  --color-text: #F5F1E8;            /* Warm Cream Text */
-  --color-text-muted: #C8B8A8;      /* Light Muted Text */
-  --color-text-subtle: #A89888;     /* Light Subtle Text */
+  /* Colors for Dark Mode - Classic Dark Green with Warm Yellow Accents */
+  --color-bg: #0F1F14;              /* Deep Forest Green Background */
+  --color-surface: #1A3025;         /* Forest Green Card & Input Background */
+  --color-surface-hover: #254833;   /* Forest Green Hover Surface */
+  --color-text: #F5EDD0;            /* Warm Cream Yellow Text */
+  --color-text-muted: #D4C4A0;      /* Light Muted Text */
+  --color-text-subtle: #B8A890;     /* Light Subtle Text */
 
-  --color-navy: #A8D5EA;            /* Bright Navy for Dark Mode */
-  --color-navy-dark: #C4E3F5;       /* Lightened Navy hover */
-  --color-navy-tint: #1A3A52;       /* Dark Navy Tint */
+  --color-navy: #A8D8A8;            /* Light Green for Dark Mode */
+  --color-navy-dark: #C4E8C4;       /* Lightened Green hover */
+  --color-navy-tint: #1A3A2A;       /* Dark Green Tint */
 
-  --color-forest: #7CB9A3;          /* Muted Teal/Sage */
-  --color-forest-dark: #9ECFBB;     /* Light Teal hover */
-  --color-forest-tint: #1A3C34;     /* Dark Teal Tint */
+  --color-forest: #B8D8B0;          /* Light Sage Green */
+  --color-forest-dark: #D0E8C8;     /* Light Sage hover */
+  --color-forest-tint: #1A3A28;     /* Dark Green Tint */
 
   --color-burgundy: #D88FA3;        /* Light Wine Red */
   --color-burgundy-dark: #E8AEC0;   /* Light Wine hover */
   --color-burgundy-tint: #452A38;   /* Dark Wine Tint */
 
-  --color-brass: #E6BC3F;           /* Gold/Yellow (Polo Gold) */
-  --color-brass-dark: #F5D570;      /* Light Gold hover */
-  --color-brass-tint: #3D3A28;      /* Dark Gold Tint */
+  --color-brass: #F4D47F;           /* Warm Yellow (Cream Yellow) */
+  --color-brass-dark: #FFEAA7;      /* Light Yellow hover */
+  --color-brass-tint: #3D3A28;      /* Dark Yellow Tint */
 
-  --color-border: #3A5070;          /* Navy Border */
-  --color-border-dark: #4A6080;     /* Darker Navy Border */
-  --color-white: #0F1A28;           /* Dark White (same as bg) */
+  --color-border: #2A4630;          /* Forest Green Border */
+  --color-border-dark: #3A5640;     /* Darker Forest Green Border */
+  --color-white: #0F1F14;           /* Dark White (same as bg) */
   --color-transparent: transparent; /* Transparent */
 }
 
